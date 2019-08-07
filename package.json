@@ -1,0 +1,22 @@
+{
+  "name": "@hyperswarm/replicator",
+  "version": "0.0.0",
+  "description": "Replicates data structures easily using hyperswarm",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard"
+  },
+  "author": "Mathias Buus (@mafintosh)",
+  "license": "MIT",
+  "dependencies": {
+    "hyperswarm": "^2.0.4",
+    "pump": "^3.0.0"
+  },
+  "devDependencies": {
+    "standard": "^13.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/dht.git"
+  }
+}
