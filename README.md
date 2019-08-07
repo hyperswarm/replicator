@@ -31,9 +31,10 @@ Options include
 
 ```js
 {
-  live: false, // passed to .replicate
-  upload: false, // passed to .replicate
-  download: false, // passed to .replicate
+  live: bool, // passed to .replicate
+  upload: bool, // passed to .replicate
+  download: bool, // passed to .replicate
+  encrypt: bool, // passed to .replicate
   discoveryKey: <buf>, // optionally set your own discovery key
   announce: true, // should the swarm announce you?
   lookup: true // should the swarm do lookups for you?

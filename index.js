@@ -12,9 +12,10 @@ function replicator (r, opts) {
     pump(
       connection,
       r.replicate({
-        live: !!opts.live,
-        upload: !!opts.upload,
-        download: !!opts.download
+        live: opts.live,
+        upload: opts.upload,
+        download: opts.download,
+        encrypt: opts.encrypt
       }),
       connection
     )
