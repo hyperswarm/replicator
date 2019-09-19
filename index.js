@@ -8,10 +8,11 @@ function replicator (r, opts) {
 
   const swarm = hyperswarm()
 
-  swarm.on('connection', function (connection) {
+  swarm.on('connection', function (connection, info) {
     pump(
       connection,
       r.replicate({
+        initiator: info.client,
         live: opts.live,
         upload: opts.upload,
         download: opts.download,
