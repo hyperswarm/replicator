@@ -6,7 +6,9 @@ module.exports = replicator
 function replicator (r, opts) {
   if (!opts) opts = {}
 
-  const swarm = hyperswarm()
+  const swarm = hyperswarm({
+    announceLocalAddress: !!opts.announceLocalAddress
+  })
 
   swarm.on('connection', function (connection, info) {
     pump(
