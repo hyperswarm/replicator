@@ -9,7 +9,7 @@
   "author": "Mathias Buus (@mafintosh)",
   "license": "MIT",
   "dependencies": {
-    "hyperswarm": "^2.0.4",
+    "hyperswarm": "^2.2.0",
     "pump": "^3.0.0"
   },
   "devDependencies": {
