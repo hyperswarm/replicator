@@ -20,7 +20,7 @@ function replicator (r, opts) {
     })
 
     pump(connection, stream, connection)
-    if (opts.onstream) opts.onstream(stream)
+    if (opts.onstream) opts.onstream(stream, info)
   })
 
   if (typeof r.ready === 'function') r.ready(onready)
