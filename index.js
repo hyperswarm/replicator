@@ -11,17 +11,16 @@ function replicator (r, opts) {
   })
 
   swarm.on('connection', function (connection, info) {
-    pump(
-      connection,
-      r.replicate({
-        initiator: info.client,
-        live: opts.live,
-        upload: opts.upload,
-        download: opts.download,
-        encrypt: opts.encrypt
-      }),
-      connection
-    )
+    const stream = r.replicate({
+      initiator: info.client,
+      live: opts.live,
+      upload: opts.upload,
+      download: opts.download,
+      encrypt: opts.encrypt
+    })
+
+    pump(connection, stream, connection)
+    if (opts.onstream) opts.onstream(stream)
   })
 
   if (typeof r.ready === 'function') r.ready(onready)
