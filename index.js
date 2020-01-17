@@ -16,7 +16,9 @@ function replicator (r, opts) {
       live: opts.live,
       upload: opts.upload,
       download: opts.download,
-      encrypt: opts.encrypt
+      encrypt: opts.encrypt,
+      keyPair: opts.keyPair,
+      onauthenticate: opts.onauthenticate
     })
 
     pump(connection, stream, connection)
