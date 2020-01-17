@@ -37,7 +37,9 @@ Options include
   encrypt: bool, // passed to .replicate
   discoveryKey: <buf>, // optionally set your own discovery key
   announce: true, // should the swarm announce you?
-  lookup: true // should the swarm do lookups for you?
+  lookup: true, // should the swarm do lookups for you?
+  keyPair: { publicKey, secretKey }, // noise keypair used for the connection
+  onauthenticate (remotePublicKey, done) // the onauthenticate hook to verify remote key pairs
 }
 ```
 
