@@ -3,7 +3,8 @@ const pump = require('pump')
 
 module.exports = replicator
 
-function replicator (r, opts) {
+function replicator (r, opts, cb) {
+  if (typeof opts === 'function') return replicator(r, null, opts)
   if (!opts) opts = {}
 
   const swarm = hyperswarm({
@@ -37,6 +38,6 @@ function replicator (r, opts) {
     swarm.join(opts.discoveryKey || r.discoveryKey, {
       announce: opts.announce !== false,
       lookup: opts.lookup !== false
-    })
+    }, cb)
   }
 }
