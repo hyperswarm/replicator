@@ -37,7 +37,8 @@ function replicator (r, opts, cb) {
 
     swarm.join(opts.discoveryKey || r.discoveryKey, {
       announce: opts.announce !== false,
-      lookup: opts.lookup !== false
+      lookup: opts.lookup !== false,
+      includeLength: !!opts.includeLength
     }, cb)
   }
 }
