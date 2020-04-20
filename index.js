@@ -8,7 +8,8 @@ function replicator (r, opts, cb) {
   if (!opts) opts = {}
 
   const swarm = hyperswarm({
-    announceLocalAddress: !!opts.announceLocalAddress
+    announceLocalAddress: !!opts.announceLocalAddress,
+    preferredPort: 49737
   })
 
   swarm.on('connection', function (connection, info) {
