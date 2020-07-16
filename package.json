@@ -1,6 +1,6 @@
 {
   "name": "@hyperswarm/replicator",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Replicates data structures easily using hyperswarm",
   "main": "index.js",
   "scripts": {
