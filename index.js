@@ -1,6 +1,23 @@
 const hyperswarm = require('hyperswarm')
 const pump = require('pump')
 
+class Event {
+  constructor () {
+    this.triggered = false
+    this.fns = new Set()
+  }
+
+  on (fn) {
+    if (this.triggered) return fn()
+    this.fns.add(fn)
+  }
+
+  emit () {
+    this.triggered = true
+    for (const fn of this.fns) fn()
+  }
+}
+
 module.exports = replicator
 
 function replicator (r, opts, cb) {
@@ -11,6 +28,9 @@ function replicator (r, opts, cb) {
     announceLocalAddress: !!opts.announceLocalAddress,
     preferredPort: 49737
   })
+
+  const oneConnection = new Event()
+  const allConnections = new Event()
 
   swarm.on('connection', function (connection, info) {
     const stream = r.replicate({
@@ -25,7 +45,14 @@ function replicator (r, opts, cb) {
 
     pump(connection, stream, connection)
     if (opts.onstream) opts.onstream(stream, info)
+    oneConnection.emit()
   })
+
+  if (r.timeouts) {
+    const { update, get } = r.timeouts
+    if (update) r.timeouts.update = (cb) => oneConnection.on(() => update(cb))
+    if (get) r.timeouts.get = (cb) => allConnections.on(() => get(cb))
+  }
 
   if (typeof r.ready === 'function') r.ready(onready)
   else onready(null)
@@ -40,5 +67,10 @@ function replicator (r, opts, cb) {
       announce: opts.announce !== false,
       lookup: opts.lookup !== false
     }, cb)
+
+    swarm.flush(() => {
+      allConnections.emit()
+      oneConnection.emit()
+    })
   }
 }
