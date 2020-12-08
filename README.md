@@ -31,6 +31,7 @@ Options include
 
 ```js
 {
+  bootstrap: [...], // optional set the DHT bootstrap servers
   live: bool, // passed to .replicate
   upload: bool, // passed to .replicate
   download: bool, // passed to .replicate
