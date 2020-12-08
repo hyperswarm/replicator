@@ -26,7 +26,8 @@ function replicator (r, opts, cb) {
 
   const swarm = hyperswarm({
     announceLocalAddress: !!opts.announceLocalAddress,
-    preferredPort: 49737
+    preferredPort: 49737,
+    bootstrap: opts.bootstrap
   })
 
   const oneConnection = new Event()
