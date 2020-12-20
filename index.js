@@ -55,7 +55,8 @@ function replicator (r, opts, cb) {
     if (get) r.timeouts.get = (cb) => allConnections.on(() => get(cb))
   }
 
-  if (typeof r.ready === 'function') r.ready(onready)
+  if (r.opened === true) onready(null)
+  else if (typeof r.ready === 'function') r.ready(onready)
   else onready(null)
 
   return swarm
