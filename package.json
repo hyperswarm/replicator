@@ -4,16 +4,21 @@
   "description": "Replicates data structures easily using hyperswarm",
   "main": "index.js",
   "scripts": {
-    "test": "standard"
+    "test": "standard && tape test/*.js"
   },
   "author": "Mathias Buus (@mafintosh)",
   "license": "MIT",
   "dependencies": {
+    "hypercore-protocol": "^8.0.7",
     "hyperswarm": "^2.13.0",
     "pump": "^3.0.0"
   },
   "devDependencies": {
-    "standard": "^14.3.1"
+    "dht-rpc": "^4.9.6",
+    "hypercore": "^9.7.5",
+    "random-access-memory": "^3.1.2",
+    "standard": "^14.3.1",
+    "tape": "^5.1.1"
   },
   "repository": {
     "type": "git",
