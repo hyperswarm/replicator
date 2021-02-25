@@ -115,7 +115,7 @@ module.exports = class Replicator extends EventEmitter {
 
     this.swarming.set(key, { core, options, one, all })
 
-    if (announce || lookup) {
+    if (announce || lookup || defaultLookup) {
       this.swarm.join(core.discoveryKey, { announce: !!announce, lookup: !!lookup || defaultLookup })
       this.swarm.flush(onflush)
     } else {
