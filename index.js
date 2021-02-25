@@ -107,6 +107,7 @@ module.exports = class Replicator extends EventEmitter {
 
     const key = core.discoveryKey.toString('hex')
     const { announce, lookup } = options
+    const defaultLookup = lookup === undefined && announce === undefined
     const added = this.swarming.has(key)
 
     const one = new Event()
@@ -115,7 +116,7 @@ module.exports = class Replicator extends EventEmitter {
     this.swarming.set(key, { core, options, one, all })
 
     if (announce || lookup) {
-      this.swarm.join(core.discoveryKey, { announce, lookup })
+      this.swarm.join(core.discoveryKey, { announce: !!announce, lookup: !!lookup || defaultLookup })
       this.swarm.flush(onflush)
     } else {
       onflush()
