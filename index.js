@@ -1,5 +1,5 @@
 const pump = require('pump')
-const hyperswarm = require('hyperswarm')
+const Hyperswarm = require('hyperswarm')
 const Protocol = require('hypercore-protocol')
 const { EventEmitter } = require('events')
 
@@ -26,15 +26,7 @@ module.exports = class Replicator extends EventEmitter {
   constructor (options = {}) {
     super()
 
-    this.swarm = hyperswarm({
-      announceLocalAddress: !!options.announceLocalAddress,
-      preferredPort: 49737,
-      bootstrap: options.bootstrap,
-      queue: {
-        multiplex: true
-      }
-    })
-
+    this.swarm = new Hyperswarm(options)
     this.createStream = options.createStream || ((init) => new Protocol(init, options))
     this.swarm.on('connection', this._onconnection.bind(this))
     this.swarming = new Map()
@@ -72,7 +64,10 @@ module.exports = class Replicator extends EventEmitter {
     stream.on('discovery-key', this._ondiscoverykey.bind(this, stream))
 
     this.streams.add(stream)
-    stream.on('close', () => this.streams.delete(stream))
+    stream.on('close', () => {
+      this.streams.delete(stream)
+      this.emit('delete', info, stream)
+    })
   }
 
   _ondiscoverykey (stream, discoveryKey) {
@@ -92,22 +87,18 @@ module.exports = class Replicator extends EventEmitter {
     this.swarm.listen()
   }
 
-  destroy () {
-    return new Promise((resolve, reject) => {
-      this.swarm.destroy((err) => {
-        if (err) return reject(err)
-        this.emit('close')
-        resolve()
-      })
-    })
+  async destroy () {
+    await this.swarm.clear()
+    await this.swarm.destroy()
+    this.emit('close')
   }
 
   async add (core, options = {}) {
     await ready(core)
 
     const key = core.discoveryKey.toString('hex')
-    const { announce, lookup } = options
-    const defaultLookup = lookup === undefined && announce === undefined
+    const { server, client } = options
+    const defaultClient = client === undefined && server === undefined
     const added = this.swarming.has(key)
 
     const one = new Event()
@@ -115,9 +106,11 @@ module.exports = class Replicator extends EventEmitter {
 
     this.swarming.set(key, { core, options, one, all })
 
-    if (announce || lookup || defaultLookup) {
-      this.swarm.join(core.discoveryKey, { announce: !!announce, lookup: !!lookup || defaultLookup })
-      this.swarm.flush(onflush)
+    if (server || client || defaultClient) {
+      const discovery = this.swarm.join(core.discoveryKey, { server: !!server, client: !!client || defaultClient })
+      server && await discovery.flushed()
+      client && await this.swarm.flush()
+      onflush()
     } else {
       onflush()
     }
