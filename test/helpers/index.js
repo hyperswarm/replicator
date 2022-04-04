@@ -1,6 +1,18 @@
-const dht = require('dht-rpc')
+const HyperDHT = require('@hyperswarm/dht')
 const tape = require('tape')
 const Replicator = require('../../')
+
+async function test (msg, fn) {
+  tape(msg, async t => {
+    const [bootstrap, destroyBootstrap] = await createBootstrap()
+    const replicators = fill(2).map(() =>
+      new Replicator({ bootstrap })
+    )
+    await fn(t, ...replicators)
+    await destroy(replicators)
+    await destroyBootstrap()
+  })
+}
 
 module.exports = { get, append, ready, test }
 
@@ -31,36 +43,48 @@ function ready (core) {
   })
 }
 
-function test (msg, fn) {
-  tape(msg, function (t) {
-    return new Promise((resolve, reject) => {
-      const bootstraper = dht({ ephemeral: true })
-
-      bootstraper.listen(0, async function () {
-        const replicators = [makeReplicator(), makeReplicator()]
-
-        let missing = replicators.length
-        for (const r of replicators) {
-          r.on('close', () => {
-            if (--missing > 0) return
-            bootstraper.destroy()
-          })
-        }
-
-        try {
-          await fn(t, ...replicators)
-          resolve()
-        } catch (err) {
-          reject(err)
-        } finally {
-          for (const r of replicators) r.destroy()
-        }
-
-        function makeReplicator () {
-          const bootstrap = ['localhost:' + bootstraper.address().port]
-          return new Replicator({ bootstrap })
-        }
-      })
+async function createBootstrap () {
+  const bootstrappers = fill(2).map(() =>
+    new HyperDHT({
+      ephemeral: true,
+      bootstrap: []
     })
-  })
+  )
+  await init(bootstrappers)
+  const bootstrap = bootstrappers.map(node => ({
+    host: '127.0.0.1',
+    port: node.address().port
+  }))
+  const nodes = fill(2).map(() =>
+    new HyperDHT({
+      ephemeral: false,
+      bootstrap
+    })
+  )
+  await init(nodes)
+  return [bootstrap, () => destroy(bootstrappers, nodes)]
+}
+
+async function init (...nodes) {
+  return await Promise.all(nodes.map(async node => {
+    if (Array.isArray(node)) {
+      await init(...node)
+    } else {
+      await node.ready()
+    }
+  }))
+}
+
+async function destroy (...nodes) {
+  return await Promise.all(nodes.map(async node => {
+    if (Array.isArray(node)) {
+      await destroy(...node)
+    } else {
+      await node.destroy()
+    }
+  }))
+}
+
+function fill (n) {
+  return Array(n).fill(null)
 }
